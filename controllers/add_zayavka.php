@@ -1,17 +1,50 @@
 <?php
 include("../config/db.php");
 
-$data = $_POST['data'];
-$postavshchik_id = $_POST['postavshchik_id'];
-$tovar_id = $_POST['tovar_id'];
-$kolvo = $_POST['kolvo'];
-$cena = $_POST['cena'];
+// Проверка, что все данные переданы и не пусты
+if (
+    empty($_POST['order_date']) ||
+    empty($_POST['supplier_id']) ||
+    empty($_POST['employee_id']) ||
+    empty($_POST['product_id']) ||
+    empty($_POST['quantity_ordered']) ||
+    empty($_POST['expected_price'])
+) {
+    header("Location: ../views/form_zayavka.php?error=Заполните все поля!");
+    exit();
+}
 
-$conn->query("INSERT INTO zayavki (data, postavshchik_id) VALUES ('$data', $postavshchik_id)");
-$zayavka_id = $conn->insert_id;
+$order_date = $_POST['order_date'];
+$supplier_id = $_POST['supplier_id'];
+$employee_id = $_POST['employee_id'];
+$product_id = $_POST['product_id'];
+$quantity_ordered = $_POST['quantity_ordered'];
+$expected_price = $_POST['expected_price'];
 
-$conn->query("INSERT INTO pozicii_zayavki (zayavka_id, tovar_id, kolvo, cena)
-              VALUES ($zayavka_id, $tovar_id, $kolvo, $cena)");
+// ——— SQL-инъекции: подготовленные выражения ———
+$stmt1 = $conn->prepare("INSERT INTO purchase_order (supplier_id, employee_id, order_date) VALUES (?, ?, ?)");
+$stmt1->bind_param("iis", $supplier_id, $employee_id, $order_date);
 
-echo "Заявка успешно добавлена! <a href='../index.php'>На главную</a>";
+if ($stmt1->execute()) {
+    $order_id = $conn->insert_id;
+
+    $stmt2 = $conn->prepare("INSERT INTO order_line (order_id, product_id, quantity_ordered, expected_price) VALUES (?, ?, ?, ?)");
+    $stmt2->bind_param("iiid", $order_id, $product_id, $quantity_ordered, $expected_price);
+
+    if ($stmt2->execute()) {
+        // Успех: редирект с сообщением
+        header("Location: ../views/form_zayavka.php?success=1");
+    } else {
+        // Ошибка при добавлении строки заказа
+        header("Location: ../views/form_zayavka.php?error=Ошибка при добавлении товара!");
+    }
+    $stmt2->close();
+} else {
+    // Ошибка при создании заявки
+    header("Location: ../views/form_zayavka.php?error=Ошибка при создании заявки!");
+}
+$stmt1->close();
+
+$conn->close();
+exit();
 ?>
