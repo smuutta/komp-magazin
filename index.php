@@ -1,91 +1,136 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Компьютерный магазин</title>
-    <style>
-        body {
-            background: #f5f5f5;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            width: 440px;
-            margin: 50px auto 0;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 0 16px #d1d1d1;
-            padding: 28px 36px 32px 36px;
-        }
-        h1 {
-            text-align: center;
-            color: #273c75;
-            margin-bottom: 30px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            margin-bottom: 20px;
-        }
-        ul li a {
-            display: block;
-            background: #2979ff;
-            color: #fff;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 12px;
-            border-radius: 7px;
-            text-align: center;
-            transition: background 0.2s;
-            box-shadow: 0 2px 6px #eee;
-        }
-        ul li a:hover {
-            background: #1565c0;
-        }
-        .success {
-            background: #e0ffe2;
-            color: #24803c;
-            border: 1px solid #99dbad;
-            padding: 10px 0;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-        .title {
-            margin-top: 0;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 36px;
-            color: #a0a0a0;
-            font-size: 13px;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h1 class="title">ИС «Компьютерный магазин»</h1>
+<?php
+// фронт-контроллер
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/model.php';
 
-    <?php
-    if (isset($_GET['success'])) {
-        if ($_GET['success'] == 1) {
-            echo "<div class='success'>Заявка успешно создана!</div>";
-        } elseif ($_GET['success'] == "sale_ok") {
-            echo "<div class='success'>Чек пробит успешно!</div>";
-        }
-    }
-    ?>
+$route = $_GET['route'] ?? 'home';
 
-    <ul>
-        <li><a href="views/form_zayavka.php">Создать заявку</a></li>
-        <li><a href="views/form_invoice.php">Оприходовать накладную</a></li>
-        <li><a href="views/form_sale.php">Продажа товара (чек)</a></li>
-        <li><a href="views/report.php">Отчёт по продажам</a></li>
-    </ul>
-</div>
-<div class="footer">
-    &copy; <?php echo date('Y'); ?> Курсовая работа Харьков Андрей ПИвУКИС-23 — <?php echo $_SERVER['SERVER_NAME'] ?? "localhost"; ?>
-</div>
-</body>
-</html>
+switch ($route) {
+
+    // Главная
+    case 'home':
+    default:
+        include __DIR__ . '/views/home.php';
+        break;
+
+
+    // ────── Product CRUD ──────
+    case 'product/form':
+        require_once __DIR__ . '/controllers/product_controller.php';
+        (new ProductController($conn))->showForm();
+        break;
+    case 'product/create':
+        require_once __DIR__ . '/controllers/product_controller.php';
+        (new ProductController($conn))->create();
+        break;
+    case 'product/view':
+        require_once __DIR__ . '/controllers/product_controller.php';
+        (new ProductController($conn))->view();
+        break;
+    case 'product/edit':
+        require_once __DIR__ . '/controllers/product_controller.php';
+        (new ProductController($conn))->editForm();
+        break;
+    case 'product/update':
+        require_once __DIR__ . '/controllers/product_controller.php';
+        (new ProductController($conn))->update();
+        break;
+    case 'product/delete':
+        require_once __DIR__ . '/controllers/product_controller.php';
+        (new ProductController($conn))->delete();
+        break;
+
+
+    // ────── Employee CRUD ──────
+    case 'employee/form':
+        require_once __DIR__ . '/controllers/employee_controller.php';
+        (new EmployeeController($conn))->form();
+        break;
+    case 'employee/create':
+        require_once __DIR__ . '/controllers/employee_controller.php';
+        (new EmployeeController($conn))->create();
+        break;
+    case 'employee/view':
+        require_once __DIR__ . '/controllers/employee_controller.php';
+        (new EmployeeController($conn))->view();
+        break;
+    case 'employee/edit':
+        require_once __DIR__ . '/controllers/employee_controller.php';
+        (new EmployeeController($conn))->edit();
+        break;
+    case 'employee/update':
+        require_once __DIR__ . '/controllers/employee_controller.php';
+        (new EmployeeController($conn))->update();
+        break;
+    case 'employee/delete':
+        require_once __DIR__ . '/controllers/employee_controller.php';
+        (new EmployeeController($conn))->delete();
+        break;
+
+
+    // ────── Zayavka (PurchaseOrder) CRUD ──────
+    case 'zayavka/form':
+        require_once __DIR__ . '/controllers/zayavka_controller.php';
+        (new ZayavkaController($conn))->form();
+        break;
+    case 'zayavka/create':
+        require_once __DIR__ . '/controllers/zayavka_controller.php';
+        (new ZayavkaController($conn))->create();
+        break;
+    case 'zayavka/view':
+        require_once __DIR__ . '/controllers/zayavka_controller.php';
+        (new ZayavkaController($conn))->view();
+        break;
+    case 'zayavka/edit':
+        require_once __DIR__ . '/controllers/zayavka_controller.php';
+        (new ZayavkaController($conn))->edit();
+        break;
+    case 'zayavka/update':
+        require_once __DIR__ . '/controllers/zayavka_controller.php';
+        (new ZayavkaController($conn))->update();
+        break;
+    case 'zayavka/delete':
+        require_once __DIR__ . '/controllers/zayavka_controller.php';
+        (new ZayavkaController($conn))->delete();
+        break;
+    case 'zayavka/success':
+        require_once __DIR__ . '/controllers/zayavka_controller.php';
+        (new ZayavkaController($conn))->success();
+        break;
+
+
+    // ────── Invoice CRUD ──────
+    case 'invoice/form':
+        require_once __DIR__ . '/controllers/invoice_controller.php';
+        (new InvoiceController($conn))->showForm();
+        break;
+    case 'invoice/create':
+        require_once __DIR__ . '/controllers/invoice_controller.php';
+        (new InvoiceController($conn))->create();
+        break;
+    case 'invoice/success':
+        require_once __DIR__ . '/controllers/invoice_controller.php';
+        (new InvoiceController($conn))->success();
+        break;
+
+
+    // ────── Sale (Чек) CRUD ──────
+    case 'sale/form':
+        require_once __DIR__ . '/controllers/sale_controller.php';
+        (new SaleController($conn))->showForm();
+        break;
+    case 'sale/create':require_once __DIR__ . '/controllers/sale_controller.php';
+        (new SaleController($conn))->create();
+        break;
+    case 'sale/success':
+        require_once __DIR__ . '/controllers/sale_controller.php';
+        (new SaleController($conn))->success();
+        break;
+
+
+    // ────── Report ──────
+    case 'report':
+        require_once __DIR__ . '/controllers/report_controller.php';
+        (new ReportController($conn))->index();
+        break;
+}
